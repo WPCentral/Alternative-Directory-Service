@@ -1,12 +1,21 @@
 // set variables for environment
 var express = require('express'),
 	app     = express(),
+	mysql   = require('mysql'),
 	request = require('request'),
 	async   = require('async');
 
 // Set server port
 app.listen(4002);
 console.log('server is running');
+
+var pool = mysql.createPool({
+	connectionLimit : 10,
+	host     : '10.133.71.192',
+	user     : 'wpcentral_stats',
+	password : 'password',
+	database : 'wpcentral_stats'
+});
 
 pool.on('enqueue', function () {
 	console.log('Waiting for available connection slot');
