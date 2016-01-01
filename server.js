@@ -1,8 +1,9 @@
 // set variables for environment
 var express = require('express'),
 	app     = express(),
+	request = require('request-json'),
+	client  = request.createClient('https://api.wordpress.org/');
 	mysql   = require('mysql'),
-	request = require('request'),
 	async   = require('async');
 
 // Set server port
