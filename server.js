@@ -23,11 +23,13 @@ pool.on('enqueue', function () {
 });
 
 app.get( '/plugins/:slug', function(req, res) {
-
+	get_data( 'plugin', req.params.slug );
+	res.send('done');
 });
 
 app.get( '/themes/:slug', function(req, res) {
-
+	get_data( 'theme', req.params.slug );
+	res.send('done');
 });
 
 app.use(function(req, res, next) {
@@ -35,3 +37,36 @@ app.use(function(req, res, next) {
 		'error': "Route doesn;'t exist"
 	});
 });
+
+
+function get_data( type, slug ) {
+	var data = {};
+
+	async.parallel([
+		// Getting plugin information
+		function(callback) {
+			client.get( type + 's/info/1.0/' + slug + '.json', function(err, res, body) {
+				if ( err ) {
+					return callback(err);
+				}
+
+				data.info = body;
+				callback();
+			});
+		},
+		//
+		function(callback) {
+			callback();
+		}
+	], function(err) {
+		if (err) {
+			return;
+		}
+
+		console.log( slug );
+		console.log( data );
+
+	});
+}
+
+
