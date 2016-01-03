@@ -4,7 +4,8 @@ var express = require('express'),
 	request = require('request-json'),
 	client  = request.createClient('https://api.wordpress.org/');
 	mysql   = require('mysql'),
-	async   = require('async');
+	async   = require('async'),
+	elasticsearch = require('elasticsearch');
 
 // Set server port
 app.listen(4002);
@@ -21,6 +22,12 @@ var pool = mysql.createPool({
 pool.on('enqueue', function () {
 	console.log('Waiting for available connection slot');
 });
+
+var client = new elasticsearch.Client({
+	host: '10.133.170.195:9200',
+	log: 'trace'
+});
+
 
 app.get( '/plugins/:slug', function(req, res) {
 	get_data( 'plugin', req.params.slug );
