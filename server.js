@@ -2,7 +2,7 @@
 var express = require('express'),
 	app     = express(),
 	request = require('request-json'),
-	client  = request.createClient('https://api.wordpress.org/');
+	wp_api  = request.createClient('https://api.wordpress.org/');
 	mysql   = require('mysql'),
 	async   = require('async'),
 	elasticsearch = require('elasticsearch');
@@ -52,7 +52,7 @@ function get_data( type, slug ) {
 	async.parallel([
 		// Getting plugin information
 		function(callback) {
-			client.get( type + 's/info/1.0/' + slug + '.json', function(err, res, body) {
+			wp_api.get( type + 's/info/1.0/' + slug + '.json', function(err, res, body) {
 				if ( err ) {
 					return callback(err);
 				}
