@@ -95,6 +95,7 @@ function save_to_wordpress( slug, data ) {
 		'postdata': {
 			'post_title': data.info.name,
 			'post_content': data.info.sections.description,
+			'post_date': data.info.added,
 			'post_date_gmt': data.info.added,
 			'post_modified_gmt': modified
 		},
