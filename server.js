@@ -1,9 +1,10 @@
 // set variables for environment
 var express       = require('express'),
 	app           = express(),
-	request       = require('request-json'),
-	wp_api        = request.createClient('https://api.wordpress.org/');
-	central_api   = request.createClient('http://wpcentral.io/api/');
+	request       = require('request'),
+	request_json  = require('request-json'),
+	wp_api        = request_json.createClient('https://api.wordpress.org/');
+	central_api   = request_json.createClient('http://wpcentral.io/api/');
 	mysql         = require('mysql'),
 	async         = require('async'),
 	elasticsearch = require('elasticsearch'),
@@ -49,7 +50,12 @@ app.use(function(req, res, next) {
 
 
 function get_data( type, slug ) {
-	var data = {};
+	var data = {
+		'info': {},
+		'translations': {},
+		'banners': {},
+		'icons': {}
+	};
 
 	async.parallel([
 		// Getting plugin information
@@ -73,6 +79,46 @@ function get_data( type, slug ) {
 				data.translations = body;
 				callback();
 			});
+		},
+		// Get banners
+		function(callback) {
+			async.each(
+				['banner-1544x500.png','banner-772x250.png'],
+				function(file, callback2) {
+
+					request.head('http://ps.w.org/' + slug + '/assets/' + file).on('response', function(response) {
+						if (response.statusCode == 200) {
+							data.banners[ file.replace('.png','') ] = 'http://ps.w.org/' + slug + '/assets/' + file;
+						}
+						callback2();
+					});
+
+				},
+				function(err, results){
+					// done
+					callback();
+				}
+			);
+		},
+		// Get icons
+		function(callback) {
+			async.each(
+				['icon-128x128.png', 'icon-256x256.png', 'icon.svg'],
+				function(file, callback2) {
+
+					request.head('http://ps.w.org/' + slug + '/assets/' + file).on('response', function(response) {
+						if (response.statusCode == 200) {
+							data.icons[ file.replace('.png','') ] = 'http://ps.w.org/' + slug + '/assets/' + file;
+						}
+						callback2();
+					});
+
+				},
+				function(err, results){
+					// done
+					callback();
+				}
+			);
 		}
 	],
 	function(err) {
@@ -80,7 +126,6 @@ function get_data( type, slug ) {
 			console.log(err);
 			return;
 		}
-
 		save_to_wordpress( slug, data );
 		save_to_elasticsearch( slug, data );
 	});
@@ -108,7 +153,10 @@ function save_to_wordpress( slug, data ) {
 
 			'rating': data.info.rating,
 			'rating_count': data.info.num_ratings,
-			'ratings': data.info.ratings
+			'ratings': data.info.ratings,
+
+			'banners': data.banners,
+			'icons': data.icons
 		}
 	};
 
