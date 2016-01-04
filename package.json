@@ -13,6 +13,7 @@
     "async": "^1.5.0",
     "elasticsearch": "^10.0.1",
     "express": "^4.12.4",
+    "moment": "^2.11.0",
     "mysql": "^2.6.2",
     "request-json": "^0.5.4"
   }

@@ -1,11 +1,13 @@
 // set variables for environment
-var express = require('express'),
-	app     = express(),
-	request = require('request-json'),
-	wp_api  = request.createClient('https://api.wordpress.org/');
-	mysql   = require('mysql'),
-	async   = require('async'),
-	elasticsearch = require('elasticsearch');
+var express       = require('express'),
+	app           = express(),
+	request       = require('request-json'),
+	wp_api        = request.createClient('https://api.wordpress.org/');
+	central_api   = request.createClient('http://wpcentral.io/api/');
+	mysql         = require('mysql'),
+	async         = require('async'),
+	elasticsearch = require('elasticsearch'),
+	moment        = require('moment');
 
 // Set server port
 app.listen(4002);
@@ -72,14 +74,40 @@ function get_data( type, slug ) {
 				callback();
 			});
 		}
-	], function(err) {
+	],
+	function(err) {
 		if (err) {
+			console.log(err);
 			return;
 		}
 
-		console.log( slug );
-		console.log( data );
-
+		save_to_wordpress( slug, data );
+		save_to_elasticsearch( slug, data );
 	});
 }
 
+
+function save_to_wordpress( slug, data ) {
+	// Transform the data how WordPress expects it.
+	var modified = moment( data.info.last_updated, 'YYYY-MM-DD hh:mma' ).format('YYYY-MM-DD HH:mm');
+
+	var data = {
+		'postdata': {
+			'post_title': data.info.name,
+			'post_content': data.info.sections.description,
+			'post_date_gmt': data.info.added,
+			'post_modified_gmt': modified
+		},
+		'metadata': {
+			'version': data.info.version
+		}
+	};
+
+	central_api.post('plugins/report/' + slug, data, function(err, res, body) {
+		
+	});
+}
+
+function save_to_elasticsearch( slug, data ) {
+
+}
