@@ -61,9 +61,16 @@ function get_data( type, slug ) {
 				callback();
 			});
 		},
-		//
+		// Get Translation info
 		function(callback) {
-			callback();
+			wp_api.get( 'translations/' + type + 's/1.0/?slug=' + slug, function(err, res, body) {
+				if ( err ) {
+					return callback(err);
+				}
+
+				data.translations = body;
+				callback();
+			});
 		}
 	], function(err) {
 		if (err) {
@@ -75,5 +82,4 @@ function get_data( type, slug ) {
 
 	});
 }
-
 
