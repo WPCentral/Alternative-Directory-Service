@@ -95,12 +95,20 @@ function save_to_wordpress( slug, data ) {
 		'postdata': {
 			'post_title': data.info.name,
 			'post_content': data.info.sections.description,
+			'post_excerpt': data.info.short_description,
 			'post_date': data.info.added,
 			'post_date_gmt': data.info.added,
 			'post_modified_gmt': modified
 		},
 		'metadata': {
-			'version': data.info.version
+			'download_link': data.info.download_link,
+			'version': data.info.version,
+			'requires': data.info.requires,
+			'tested_up_to': data.info.tested,
+
+			'rating': data.info.rating,
+			'rating_count': data.info.num_ratings,
+			'ratings': data.info.ratings
 		}
 	};
 
